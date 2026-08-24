@@ -58,7 +58,7 @@ function loadSavedPlaces() {
   try { var saved = JSON.parse(localStorage.getItem('infoboard-places')); if (saved && saved.length === 2) places = saved; } catch (error) { }
   updatePlaceLabels();
 }
-function radarUrl(place) { var timestamp = radarOffset ? '&time=' + Math.round((Date.now() + radarOffset * 60000) / 60000) : ''; return 'https://www.rainviewer.com/map.html?loc=' + place.latitude + ',' + place.longitude + ',8' + timestamp; }
+function radarUrl(place) { var timestamp = radarOffset ? '&time=' + Math.round((Date.now() + radarOffset * 60000) / 60000) : ''; return 'https://www.rainviewer.com/map.html?loc=' + place.latitude + ',' + place.longitude + ',7&smooth=0&color=2' + timestamp; }
 function renderRadarTime() { byId('radar-time').textContent = radarOffset === 0 ? 'Jetzt' : (radarOffset > 0 ? '+' : '') + radarOffset + ' min'; byId('radar-frame').src = radarUrl(places[activePlace]); }
 function shiftRadar(minutes) { radarOffset += minutes; renderRadarTime(); }
 function toggleRadarPlay() { if (radarTimer) { clearInterval(radarTimer); radarTimer = null; byId('radar-play').textContent = '▶'; } else { radarTimer = setInterval(function () { shiftRadar(30); }, 30000); byId('radar-play').textContent = '❚❚'; } }
@@ -105,7 +105,19 @@ function renderAgendaEntries(entries, targetId, emptyText) {
 }
 function loadCalendar() {
   if (!calendarFeedUrl) { byId('agenda-list').innerHTML = '<li class="empty">Noch kein Kalender verbunden.<br>Trage in app.js eine öffentliche iCloud-ICS-URL ein.</li>'; return; }
-  fetch(calendarFeedUrl).then(function (response) { if (!response.ok) throw new Error('ICS'); return response.text(); }).then(function (text) { var entries = parseICS(text); renderAgendaEntries(entries.filter(function (item) { return item.type === 'VEVENT'; }), 'agenda-list', 'Keine kommenden Termine gefunden.'); renderAgendaEntries(entries.filter(function (item) { return item.type === 'VTODO'; }), 'reminder-list', 'Keine Erinnerungen gefunden.'); }).catch(function () { byId('agenda-list').innerHTML = '<li class="empty">Kalender konnte nicht geladen werden.<br>Prüfe URL und CORS-Freigabe.</li>'; });
+  fetchCalendarText(getProxiedUrls(calendarFeedUrl), 0).then(function (text) { var entries = parseICS(text); renderAgendaEntries(entries.filter(function (item) { return item.type === 'VEVENT'; }), 'agenda-list', 'Keine kommenden Termine gefunden.'); renderAgendaEntries(entries.filter(function (item) { return item.type === 'VTODO'; }), 'reminder-list', 'Keine Erinnerungen gefunden.'); }).catch(function () { byId('agenda-list').innerHTML = '<li class="empty">Kalender konnte nicht geladen werden.<br>Alle Kalender-Proxys waren nicht erreichbar.</li>'; });
+}
+function getProxiedUrl(url) { if (!url) return ''; var cleanUrl = url.replace('webcal://', 'https://'); return 'https://corsproxy.io/?' + encodeURIComponent(cleanUrl); }
+function getProxiedUrls(url) {
+  if (!url) return [];
+  var cleanUrl = url.replace('webcal://', 'https://'); var encoded = encodeURIComponent(cleanUrl);
+  return ['https://corsproxy.io/?url=' + encoded, getProxiedUrl(cleanUrl), 'https://api.codetabs.com/v1/proxy?quest=' + encoded];
+}
+function fetchCalendarText(urls, index) {
+  if (index >= urls.length) return Promise.reject(new Error('Kein ICS-Proxy verfügbar'));
+  return fetch(urls[index]).then(function (response) { if (!response.ok) throw new Error('Proxy HTTP ' + response.status); return response.text(); }).then(function (text) {
+    if (text.trim().indexOf('BEGIN:VCALENDAR') !== 0) throw new Error('Proxy lieferte kein ICS'); return text;
+  }).catch(function () { return fetchCalendarText(urls, index + 1); });
 }
 function escapeHTML(value) { return value.replace(/[&<>"']/g, function (char) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]; }); }
 
@@ -117,9 +129,11 @@ function setupAgendaSwipe() {
   tile.addEventListener('touchstart', function (event) { if (!event.touches || !event.touches.length) return; startX = event.touches[0].clientX; startY = event.touches[0].clientY; }, { passive: true });
   tile.addEventListener('touchend', function (event) { if (!event.changedTouches || !event.changedTouches.length) return; var endX = event.changedTouches[0].clientX; var endY = event.changedTouches[0].clientY; var diffX = endX - startX; var diffY = endY - startY; if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) { if (diffX < 0) showReminders(); else showCalendar(); } }, { passive: true });
 }
-loadSavedPlaces(); updateClock(); showRandomFact(); loadWeather(); loadCalendar(); renderRadarTime(); setupAgendaSwipe();
+loadSavedPlaces(); updateClock(); showRandomFact(); loadWeather(); loadCalendar();
+setTimeout(renderRadarTime, 1000); setupAgendaSwipe();
 setInterval(updateClock, 1000); setInterval(showRandomFact, 10800000); setInterval(loadWeather, 900000);
 document.querySelectorAll('.place, .location').forEach(function (button) { button.addEventListener('click', switchPlace); });
+document.querySelectorAll('.edit-place').forEach(function (button) { button.addEventListener('click', function (event) { event.stopPropagation(); openSettings(Number(button.getAttribute('data-place'))); }); });
 byId('fact-card').addEventListener('click', showRandomFact); byId('settings-close').addEventListener('click', closeSettings); byId('settings-cancel').addEventListener('click', closeSettings); byId('settings-save').addEventListener('click', saveSettings);
 byId('settings-backdrop').addEventListener('click', function (event) { if (event.target === byId('settings-backdrop')) closeSettings(); });
 byId('place-name').addEventListener('input', searchPlaces); byId('place-suggestions').addEventListener('click', applySuggestion);
