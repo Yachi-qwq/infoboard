@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Infoboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"></span><span class="brand-name">Infoboard</span></div>
+      <div class="status"><span class="status-dot"></span><span id="last-update">Live</span></div>
+    </header>
+
+    <section class="dashboard" aria-label="Infoboard">
+      <section class="tile clock-tile" aria-label="Uhrzeit, Datum und Tierfakt">
+        <span class="tile-title">Heute</span>
+        <div>
+          <div id="clock" class="clock">--:--:--</div>
+          <div id="date" class="date">Lade Datum ...</div>
+          <section id="fact-card" class="fact-card" aria-label="Tierfakt" title="Neuen Tierfakt anzeigen">
+            <span class="tile-title">Tierfakt</span>
+            <p id="fact-text" class="fact-text">Tierfakt wird geladen ...</p>
+          </section>
+        </div>
+        <div class="clock-meta"><span id="timezone">Lokale Zeit</span><span id="week-number"></span></div>
+      </section>
+
+      <section class="tile weather" aria-label="Wetter">
+        <div class="weather-inner">
+          <span id="weather-title" class="tile-title">Wetter · Bad Ischl</span>
+          <div class="place-buttons" aria-label="Wetterorte"><button class="place active" data-place="0">Bad Ischl</button><button class="place" data-place="1">Linz</button></div>
+          <div class="weather-main"><div id="weather-icon" class="weather-icon">•</div><div><div id="temperature" class="temperature">--<sup>°C</sup></div><div id="condition" class="condition">Wetter wird geladen</div></div></div>
+          <p id="weather-summary" class="weather-summary">Tagesprognose wird geladen ...</p>
+          <section class="hourly" aria-label="Stündliche Wetterentwicklung"><span class="tile-title">Nächste Stunden</span><div id="hourly-list" class="hourly-list"><span class="empty">Lade Vorschau ...</span></div></section>
+          <div class="weather-details"><div class="metric"><div class="metric-label">Wind</div><div id="wind" class="metric-value">-- km/h</div></div><div class="metric"><div class="metric-label">Gefühlt</div><div id="feels-like" class="metric-value">--°</div></div></div>
+        </div>
+      </section>
+
+      <section id="agenda-tile" class="tile agenda" aria-label="Kalender und Erinnerungen">
+        <div class="agenda-dots"><button class="agenda-dot active" data-panel="calendar-panel" aria-label="Kalender anzeigen"></button><button class="agenda-dot" data-panel="reminder-panel" aria-label="Erinnerungen anzeigen"></button></div>
+        <div id="calendar-panel" class="agenda-panel active" aria-label="Nächste Termine"><span class="tile-title">Nächste Termine</span><ul id="agenda-list" class="agenda-list"><li class="empty">ICS-Kalender wird geladen ...</li></ul></div>
+        <div id="reminder-panel" class="agenda-panel" aria-label="Erinnerungen"><span class="tile-title">Erinnerungen</span><ul id="reminder-list" class="agenda-list"><li class="empty">Keine Erinnerungen geladen.</li></ul></div>
+      </section>
+
+      <section class="tile radar" aria-label="Regenradar">
+        <div class="radar-head"><span class="tile-title">Regenradar</span><div class="radar-actions"><button id="radar-back" aria-label="30 Minuten zurück">−30</button><button id="radar-play" aria-label="Radar abspielen">▶</button><span id="radar-time" class="radar-time">Jetzt</span><button id="radar-forward" aria-label="30 Minuten weiter">+30</button><div class="switcher"><button class="location active" data-place="0">Bad Ischl</button><button class="location" data-place="1">Linz</button></div></div></div>
+        <div class="map-viewport"><iframe id="radar-frame" class="map-frame" title="RainViewer Regenradar" src="https://www.rainviewer.com/map.html?loc=47.7119,13.6239,8"></iframe></div>
+      </section>
+    </section>
+
+    <footer class="footer"><span>Standort: <strong id="footer-location">Bad Ischl, Österreich</strong></span><span id="connection">Daten werden synchronisiert</span></footer>
+  </main>
+  <div id="settings-backdrop" class="settings-backdrop" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="settings-modal">
+      <div class="settings-head"><h2 id="settings-title">Ort bearbeiten</h2><button id="settings-close" aria-label="Einstellungen schließen">×</button></div>
+      <div class="settings-row"><label for="place-name">Ort suchen</label><input id="place-name" class="place-field" type="text" autocomplete="off" placeholder="z. B. Strobl"><div id="place-suggestions" class="suggestions" hidden></div><div id="place-search-status" class="search-status" aria-live="polite"></div></div>
+      <div class="settings-actions"><button id="settings-cancel">Abbrechen</button><button id="settings-save" class="active">Speichern</button></div>
+    </div>
+  </div>
+  <script src="facts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
