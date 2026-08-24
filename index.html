@@ -30,7 +30,7 @@
       <section class="tile weather" aria-label="Wetter">
         <div class="weather-inner">
           <span id="weather-title" class="tile-title">Wetter · Bad Ischl</span>
-          <div class="place-buttons" aria-label="Wetterorte"><button class="place active" data-place="0">Bad Ischl</button><button class="place" data-place="1">Linz</button></div>
+          <div class="place-buttons" aria-label="Wetterorte"><span class="place-control"><button class="place active" data-place="0">Bad Ischl</button><button class="edit-place" data-place="0" aria-label="Ort 1 bearbeiten" title="Ort bearbeiten">✎</button></span><span class="place-control"><button class="place" data-place="1">Linz</button><button class="edit-place" data-place="1" aria-label="Ort 2 bearbeiten" title="Ort bearbeiten">✎</button></span></div>
           <div class="weather-main"><div id="weather-icon" class="weather-icon">•</div><div><div id="temperature" class="temperature">--<sup>°C</sup></div><div id="condition" class="condition">Wetter wird geladen</div></div></div>
           <p id="weather-summary" class="weather-summary">Tagesprognose wird geladen ...</p>
           <section class="hourly" aria-label="Stündliche Wetterentwicklung"><span class="tile-title">Nächste Stunden</span><div id="hourly-list" class="hourly-list"><span class="empty">Lade Vorschau ...</span></div></section>
@@ -46,7 +46,7 @@
 
       <section class="tile radar" aria-label="Regenradar">
         <div class="radar-head"><span class="tile-title">Regenradar</span><div class="radar-actions"><button id="radar-back" aria-label="30 Minuten zurück">−30</button><button id="radar-play" aria-label="Radar abspielen">▶</button><span id="radar-time" class="radar-time">Jetzt</span><button id="radar-forward" aria-label="30 Minuten weiter">+30</button><div class="switcher"><button class="location active" data-place="0">Bad Ischl</button><button class="location" data-place="1">Linz</button></div></div></div>
-        <div class="map-viewport"><iframe id="radar-frame" class="map-frame" title="RainViewer Regenradar" src="https://www.rainviewer.com/map.html?loc=47.7119,13.6239,8"></iframe></div>
+        <div class="map-viewport"><iframe id="radar-frame" class="map-frame" title="RainViewer Regenradar" loading="eager" src="about:blank"></iframe></div>
       </section>
     </section>
 
